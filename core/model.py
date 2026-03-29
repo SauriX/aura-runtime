@@ -1,6 +1,11 @@
 import requests
+from core.prompt import construir_prompt
 
-def preguntar_modelo(prompt):
+
+def preguntar_modelo(user_input, contexto):
+
+    prompt = construir_prompt(contexto) + f"\nUsuario: {user_input}"
+
     response = requests.post(
         "http://localhost:11434/api/generate",
         json={
@@ -9,4 +14,5 @@ def preguntar_modelo(prompt):
             "stream": False,
         },
     )
+
     return response.json()["response"]

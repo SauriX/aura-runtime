@@ -8,11 +8,13 @@ from brain.intent import forzar_busqueda
 from brain.style import ajustar_estilo
 
 from tools.web import buscar_web
-from tools.system import abrir_app, es_comando_abrir
+from tools.system import abrir_app, es_comando_abrir, detectar_apps
 
 from utils.clean import limpiar_respuesta
 from utils.normalize import normalizar_contenido
 
+
+# ---------------- HISTORIAL ----------------
 
 def agregar_historial(memory, user, aura):
     if aura and len(aura) > 3:
@@ -22,6 +24,8 @@ def agregar_historial(memory, user, aura):
         })
         memory["history"] = memory["history"][-6:]
 
+
+# ---------------- MAIN ----------------
 
 def main():
     print("A.U.R.A.: Inicializada.")
@@ -34,7 +38,7 @@ def main():
 
         memory = load_memory()
 
-        # ---------------- PRIORIDAD DE DECISIONES ----------------
+        # ---------------- PRIORIDAD ----------------
 
         # 1. IDENTIDAD
         identidad = responder_identidad(user_input, memory)
@@ -42,50 +46,76 @@ def main():
             print("A.U.R.A.:", identidad)
             continue
 
-        # 2. COMANDOS DEL SISTEMA
+        # 2. COMANDOS DIRECTOS (fallback rápido)
         if es_comando_abrir(user_input):
             print("A.U.R.A.: Ejecutando...")
 
-            apps = user_input.lower()
-            apps = apps.replace("abre", "").replace("abrir", "").replace("ejecuta", "").replace("inicia", "")
-            apps = apps.strip().split("y")
-
+            apps = detectar_apps(user_input)
             ejecutadas = []
 
             for app in apps:
-                app = app.strip()
-                if app:
-                    if abrir_app(app):
-                        ejecutadas.append(app)
+                if abrir_app(app):
+                    ejecutadas.append(app)
 
             memory["ultima_accion"] = ", ".join(ejecutadas)
             save_memory(memory)
 
-            print("A.U.R.A.: Listo.")
+            if ejecutadas:
+                print(f"A.U.R.A.: Abrí {', '.join(ejecutadas)}.")
+            else:
+                print("A.U.R.A.: No pude ejecutar la solicitud.")
+
             continue
 
-        # 3. BÚSQUEDA
-        if forzar_busqueda(user_input):
+        # ---------------- CONTEXTO ----------------
+
+        contexto = construir_contexto(memory)
+
+        # ---------------- MODELO ----------------
+
+        raw = preguntar_modelo(
+            f"Pregunta actual: {user_input}",
+            contexto
+        )
+
+        decision = parsear_respuesta(raw)
+
+        accion = decision.get("accion")
+        contenido = decision.get("contenido")
+
+        # ---------------- ACCIONES DEL MODELO ----------------
+
+        if accion == "abrir":
+            print("A.U.R.A.: Ejecutando...")
+
+            apps = [a.strip() for a in contenido.split(",")]
+            ejecutadas = []
+
+            for app in apps:
+                if abrir_app(app):
+                    ejecutadas.append(app)
+
+            memory["ultima_accion"] = ", ".join(ejecutadas)
+            save_memory(memory)
+
+            if ejecutadas:
+                print(f"A.U.R.A.: Abrí {', '.join(ejecutadas)}.")
+            else:
+                print("A.U.R.A.: No pude ejecutar la solicitud.")
+
+            continue
+
+        elif accion == "buscar":
             print("A.U.R.A.: Buscando...")
 
-            resultados = buscar_web(user_input)
+            resultados = buscar_web(contenido)
             resumen = str(resultados)
 
-            contexto = construir_contexto(memory)
-
             raw = preguntar_modelo(
-                    f"Información:\n{resumen}\n\nPregunta: {user_input}",
-                    contexto
-                )
+                f"Información:\n{resumen}\n\nPregunta actual: {user_input}",
+                contexto
+            )
 
-            decision = parsear_respuesta(raw)
-            contenido = decision.get("contenido")
-
-        else:
-            # 4. MODELO NORMAL
-            contexto = construir_contexto(memory)
-
-            raw = preguntar_modelo(user_input, contexto)
             decision = parsear_respuesta(raw)
             contenido = decision.get("contenido")
 
