@@ -2,16 +2,26 @@ import json
 import re
 
 def fallback(raw):
+    limpio = limpiar_basura(raw)
     return {
         "accion": "responder",
-        "contenido": raw.strip()
+        "contenido": limpio
     }
+def limpiar_basura(texto):
+    lineas = texto.split("\n")
+    limpias = []
 
+    for l in lineas:
+        if "A.U.R.A." in l and "Soy" in l:
+            continue
+        limpias.append(l)
+
+    return "\n".join(limpias).strip()
 def parsear_respuesta(raw):
     try:
         data = json.loads(raw)
     except:
-        match = re.search(r'\{.*\}', raw, re.DOTALL)
+        match = re.search(r'\{.*?\}', raw, re.DOTALL)
         if match:
             try:
                 data = json.loads(match.group(0))

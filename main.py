@@ -1,4 +1,4 @@
-from core.memory import load_memory, save_memory
+from core.memory import load_memory, save_memory, guardar_hecho
 from core.model import preguntar_modelo
 from core.parser import parsear_respuesta
 from core.context import construir_contexto
@@ -38,6 +38,7 @@ def main():
 
         # 1. IDENTIDAD
         identidad = responder_identidad(user_input, memory)
+        print("DEBUG identidad:", identidad)
         if identidad:
             print("A.U.R.A.:", identidad)
             continue
@@ -71,7 +72,7 @@ def main():
             resultados = buscar_web(user_input)
             resumen = str(resultados)
 
-            contexto = construir_contexto(memory)
+            contexto = construir_contexto(memory,user_input)
 
             raw = preguntar_modelo(
                     f"Información:\n{resumen}\n\nPregunta: {user_input}",
@@ -83,9 +84,10 @@ def main():
 
         else:
             # 4. MODELO NORMAL
-            contexto = construir_contexto(memory)
+            contexto = construir_contexto(memory,user_input)
 
             raw = preguntar_modelo(user_input, contexto)
+            print("RAW:\n", raw)
             decision = parsear_respuesta(raw)
             contenido = decision.get("contenido")
 
@@ -100,6 +102,8 @@ def main():
         # ---------------- MEMORIA ----------------
 
         agregar_historial(memory, user_input, respuesta)
+        memory = guardar_hecho(memory, user_input)
+
         memory["ultimo"] = user_input
         save_memory(memory)
 
