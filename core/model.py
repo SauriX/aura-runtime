@@ -15,4 +15,5 @@ def preguntar_modelo(user_input, contexto):
         },
     )
 
+    
     return response.json()["response"]

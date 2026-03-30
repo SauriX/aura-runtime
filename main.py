@@ -9,7 +9,7 @@ from core.memory import (
 from core.memory_engine import guardar_hecho, decaer_memoria
 from core.executor import ejecutar_comando
 from core.responder import generar_respuesta
-
+from brain.personality import detectar_modo, aplicar_personalidad
 from brain.identity import responder_identidad
 from brain.style import ajustar_estilo
 from brain.decision import decidir
@@ -20,10 +20,9 @@ from utils.normalize import normalizar_contenido
 
 def agregar_historial(memory, user, aura):
     if aura and len(aura) > 3:
-        memory["history"].append({
-            "user": user,
-            "aura": aura
-        })
+        if memory["history"] and memory["history"][-1]["user"].lower() == user.lower():
+            return
+        memory["history"].append({"user": user, "aura": aura})
         memory["history"] = memory["history"][-6:]
 
 
@@ -64,7 +63,10 @@ def main():
         contenido = normalizar_contenido(contenido)
         respuesta = limpiar_respuesta(contenido)
         respuesta = ajustar_estilo(user_input, respuesta)
-
+        modo = detectar_modo(user_input,memory)
+        respuesta = aplicar_personalidad(respuesta, modo)
+        if not respuesta or len(respuesta.strip()) < 2:
+            respuesta = "Continúa, te escucho."
         print("A.U.R.A.:", respuesta)
 
         # ---------------- MEMORIA ----------------
