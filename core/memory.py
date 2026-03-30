@@ -79,29 +79,7 @@ def extraer_categoria(texto):
     return "general"
 
 
-def guardar_hecho(memory, user_input):
-    importancia = evaluar_importancia(user_input)
 
-    if importancia < 0.7:
-        return memory
-
-    categoria = extraer_categoria(user_input)
-
-    nuevo = {
-        "dato": user_input,
-        "peso": importancia,
-        "categoria": categoria
-    }
-
-    memory["facts"].append(nuevo)
-
-    # limitar tamaño
-    memory["facts"] = sorted(
-        memory["facts"],
-        key=lambda x: x["peso"],
-        reverse=True
-    )[:20]
-    return memory
 
 def aprender_usuario(memory, user_input):
     texto = user_input.lower()
