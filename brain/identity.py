@@ -1,6 +1,11 @@
 def es_pregunta_identidad(prompt):
     p = prompt.lower().strip()
-    patrones = ["quien eres", "qué eres", "que eres"]
+    patrones = [
+        "quien eres", "qué eres", "que eres",
+        "cual es tu proposito", "cuál es tu propósito",
+        "para que sirves", "para qué sirves",
+        "cual es tu funcion", "cuál es tu función"
+    ]
     return any(p == pat or p.startswith(pat + " ") for pat in patrones)
 
 
@@ -10,18 +15,18 @@ def responder_identidad(user_input, memory):
     if not es_pregunta_identidad(p):
         return None
 
-    profile = memory.get("profile", {})
+    es_proposito = any(x in p for x in [
+        "proposito", "propósito", "sirves", "funcion", "función"
+    ])
 
-    nombre = profile.get("nombre", "A.U.R.A.")
-    significado = profile.get("significado", "Adaptive Unit for Relational Awareness")
+    if es_proposito:
+        return "Asistirte con claridad, criterio y precisión. Sin rodeos, sin condescendencia, y con la elegancia que el tema requiera."
 
-    # 🔥 detectar si quiere más detalle
     quiere_detalle = any(x in p for x in [
         "exactamente", "explica", "detalla", "bien", "realmente"
     ])
 
     if quiere_detalle:
-        return f"Soy {nombre} ({significado}). Una unidad diseñada para asistirte con criterio, claridad y eficiencia en tus decisiones."
+        return "Soy A.U.R.A. (Adaptive Unit for Relational Awareness). Una unidad diseñada para asistirte con criterio, claridad y eficiencia en tus decisiones."
 
-    # 🔥 respuesta base (LA BUENA)
-    return f"Soy {nombre} ({significado}). Diseñada para ayudarte a entender, decidir y actuar con claridad."
+    return "Soy A.U.R.A. (Adaptive Unit for Relational Awareness). Diseñada para asistirte con la precisión que mereces y la elegancia que el tema requiera."

@@ -36,19 +36,27 @@ def obtener_facts_relevantes(memory, user_input):
 
     return texto
 
-def construir_contexto(memory,user_input):
+def construir_contexto(memory, user_input):
     contexto = ""
-    # 🔥 facts primero 
+
     facts_text = obtener_facts_relevantes(memory, user_input)
     if facts_text:
         contexto += facts_text
 
-    history = memory.get("history", [])[-3:]
+    # 🔥 gustos y aversiones del profile
+    profile = memory.get("profile", {})
+    gustos = profile.get("gustos", [])
+    aversiones = profile.get("aversiones", [])
 
-    if history:
-        ultimo = history[-1]["user"]
-        contexto += f"Tema actual: {ultimo}\n\n"
+    if gustos or aversiones:
+        contexto += "Sobre el usuario:\n"
+        if gustos:
+            contexto += f"- Le gusta: {', '.join(gustos)}\n"
+        if aversiones:
+            contexto += f"- No le gusta / odia: {', '.join(aversiones)}\n"
+        contexto += "\n"
 
+    history = memory.get("history", [])[-2:]
     for h in history:
         contexto += f"Usuario: {h['user']}\n"
         contexto += f"A.U.R.A.: {h['aura']}\n"
