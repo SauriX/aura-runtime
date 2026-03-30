@@ -29,7 +29,7 @@ def obtener_facts_relevantes(memory, user_input):
     # 🔥 4. construir texto
     texto = ""
     if filtrados:
-        texto = "Preferencias del usuario (usa esto para responder):\n"
+        texto = "Preferencias relevantes del usuario:\n"
         for f in filtrados[:5]:
             texto += f"- {f['dato']}\n"
         texto += "\n"
