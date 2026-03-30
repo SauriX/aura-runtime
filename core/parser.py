@@ -31,7 +31,9 @@ def parsear_respuesta(raw):
             return fallback(raw)
 
     contenido = data.get("contenido")
-
+# 🔥 soporte alterno
+    if not contenido and "respuesta" in data:
+        contenido = data["respuesta"]
     # doble JSON
     if isinstance(contenido, str):
         texto = contenido.strip()
@@ -40,5 +42,8 @@ def parsear_respuesta(raw):
                 return json.loads(texto)
             except:
                 pass
+    if not contenido:
+        return fallback(raw)
 
+    data["contenido"] = contenido            
     return data

@@ -12,6 +12,7 @@ from core.responder import generar_respuesta
 
 from brain.identity import responder_identidad
 from brain.style import ajustar_estilo
+from brain.decision import decidir
 
 from utils.clean import limpiar_respuesta
 from utils.normalize import normalizar_contenido
@@ -46,11 +47,15 @@ def main():
             print("A.U.R.A.:", identidad)
             continue
 
+        # ---------------- DECISIÓN ----------------
+        decision = decidir(user_input, memory)
+
         # ---------------- ACCIONES ----------------
-        ejecutado, memory = ejecutar_comando(user_input, memory)
-        if ejecutado:
-            save_memory(memory)
-            continue
+        if decision["tipo"] == "accion":
+            ejecutado, memory = ejecutar_comando(user_input, memory)
+            if ejecutado:
+                save_memory(memory)
+                continue
 
         # ---------------- RESPUESTA ----------------
         contenido = generar_respuesta(user_input, memory)
