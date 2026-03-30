@@ -14,8 +14,6 @@ def preguntar_modelo(user_input, contexto):
             "stream": False,
         },
     )
-    print("=== PROMPT ENVIADO ===")
-    print(prompt)
-    print("=== FIN PROMPT ===")
+
     
     return response.json()["response"]
