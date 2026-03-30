@@ -6,9 +6,17 @@ def ejecutar_comando(user_input, memory):
 
     print("A.U.R.A.: Ejecutando...")
 
-    apps = user_input.lower()
-    apps = apps.replace("abre", "").replace("abrir", "").replace("ejecuta", "").replace("inicia", "")
-    apps = apps.strip().split("y")
+    # 🔥 dividir en palabras
+    palabras = user_input.lower().split()
+
+    # 🔥 comandos a ignorar
+    comandos = {"abre", "abrir", "ejecuta", "inicia", "habre"}
+
+    # 🔥 filtrar palabras
+    apps = [p for p in palabras if p not in comandos]
+
+    # 🔥 reconstruir y separar múltiples apps
+    apps = " ".join(apps).split("y")
 
     ejecutadas = []
 

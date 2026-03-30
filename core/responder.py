@@ -23,7 +23,7 @@ def generar_respuesta(user_input, memory):
         contexto = construir_contexto(memory, user_input)
 
         raw = preguntar_modelo(user_input, contexto)
-        print("RAW:\n", raw)
+        """ print("RAW:\n", raw) """
 
     decision = parsear_respuesta(raw)
     contenido = decision.get("contenido")
