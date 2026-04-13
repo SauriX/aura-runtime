@@ -1,3 +1,5 @@
+import re
+
 def limpiar_respuesta(texto):
     if not texto:
         return texto
@@ -9,6 +11,6 @@ def limpiar_respuesta(texto):
     ]
 
     for b in basura:
-        texto = texto.replace(b, "")
+        texto = re.sub(re.escape(b), '', texto, flags=re.IGNORECASE)
 
     return texto.strip()

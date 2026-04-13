@@ -55,7 +55,13 @@ def construir_contexto(memory, user_input):
         if aversiones:
             contexto += f"- No le gusta / odia: {', '.join(aversiones)}\n"
         contexto += "\n"
-
+        
+        
+    state = memory.get("state", {})
+    if state:
+        contexto += "Estado actual de A.U.R.A.:\n"
+        contexto += f"- ánimo: {state.get('mood')}\n"
+        contexto += f"- energía: {round(state.get('energy', 0), 2)}\n\n"
     history = memory.get("history", [])[-2:]
     for h in history:
         contexto += f"Usuario: {h['user']}\n"

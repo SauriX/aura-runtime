@@ -5,7 +5,7 @@ from core.memory import (
     extraer_categoria,
     aprender_usuario
 )
-
+from core.state import cargar_estado, actualizar_estado
 from core.memory_engine import guardar_hecho, decaer_memoria
 from core.executor import ejecutar_comando
 from core.responder import generar_respuesta
@@ -36,7 +36,7 @@ def main():
             break
 
         memory = load_memory()
-
+        memory = cargar_estado(memory)
         # 🔥 memoria evolutiva
         memory = decaer_memoria(memory)
 
@@ -64,7 +64,7 @@ def main():
         respuesta = limpiar_respuesta(contenido)
         respuesta = ajustar_estilo(user_input, respuesta)
         modo = detectar_modo(user_input,memory)
-        respuesta = aplicar_personalidad(respuesta, modo)
+        respuesta = aplicar_personalidad(respuesta, modo,memory)
         if not respuesta or len(respuesta.strip()) < 2:
             respuesta = "Continúa, te escucho."
         print("A.U.R.A.:", respuesta)
@@ -82,7 +82,7 @@ def main():
         )
 
         memory["ultimo"] = user_input
-
+        memory = actualizar_estado(memory, user_input, respuesta)
         save_memory(memory)
 
 
